@@ -1,11 +1,11 @@
 ;;; gnu-elpa-keyring-update.el --- Update Emacs's GPG keyring for GNU ELPA  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019-2022  Free Software Foundation, Inc.
+;; Copyright (C) 2019-2024  Free Software Foundation, Inc.
 
 ;; Author: Stefan Monnier <monnier@iro.umontreal.ca>
 ;; Keywords: maint, tools
 ;; Package-Type: multi
-;; Version: 2022.12
+;; Version: 2022.12.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,6 +35,14 @@
 ;; installing packages, then in order to install this package you have to
 ;; temporarily disable signature verification (see variable
 ;;   `package-check-signature') :-(
+
+;;; News:
+
+;; Since 2022.12:
+;; - Fix a bug where the new keys could end up remaining non-installed.
+;;
+;; Since 2019.3:
+;; - New GPG keys
 
 ;;; Code:
 
@@ -71,11 +79,9 @@
   (let ((gnupghome-dir (or (bound-and-true-p package-gnupghome-dir)
                            (expand-file-name "gnupg"
                                              package-user-dir))))
-    (if (not (file-directory-p gnupghome-dir))
-        (error "No keyring to update!")
-      (package-import-keyring (gnu-elpa-keyring-update--keyring))
-      (write-region "" nil (expand-file-name "gnu-elpa.timestamp" gnupghome-dir)
-                    nil 'silent))))
+    (package-import-keyring (gnu-elpa-keyring-update--keyring))
+    (write-region "" nil (expand-file-name "gnu-elpa.timestamp" gnupghome-dir)
+                  nil 'silent)))
 
 ;; FIXME: Maybe we should use an advice on `package--check-signature'
 ;; so as to avoid this startup cost?
